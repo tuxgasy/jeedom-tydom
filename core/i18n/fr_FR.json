@@ -1,0 +1,25 @@
+{
+  "plugins\/tydom\/plugin_info\/configuration.php": {
+    "Mode": "Mode",
+    "Remote": "Distant",
+    "Local": "Local",
+    "TydomHost": "Adresse IP",
+    "TydomMac": "Adresse MAC",
+    "TydomPassword": "Mot de passe",
+    "Port socket interne": "Port socket interne"
+  },
+  "plugins\/tydom\/desktop\/php\/tydom.php": {
+    "401 - Accès non autorisé": "401 - Accès non autorisé",
+    "Gestion": "Gestion",
+    "Configuration": "Configuration",
+    "Synchronisation": "Synchronisation"
+  },
+  "plugins\/tydom\/core\/class\/tydom.class.php": {
+    "L'adresse IP n'est pas configuré": "L'adresse IP n'est pas configuré",
+    "L'adresse MAC n'est pas configuré": "L'adresse MAC n'est pas configuré",
+    "Le mot de passe n'est pas configuré": "Le mot de passe n'est pas configuré",
+    "Veuillez vérifier la configuration": "Veuillez vérifier la configuration",
+    "Lancement démon": "Lancement démon",
+    "Impossible de lancer le démon, vérifiez le log": "Impossible de lancer le démon, vérifiez le log"
+  }
+}

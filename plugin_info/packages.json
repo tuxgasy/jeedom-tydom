@@ -1,0 +1,7 @@
+{
+  "pip3": {
+    "pyserial": {},
+    "requests": {},
+    "websockets": {}
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "id": "tydom",
+  "name": "Tydom",
+  "description": {
+    "fr_FR": "Ce plugin permet de controler vos équipements via la box Tydom"
+  },
+  "licence": "AGPL",
+  "author": "TuxGasy",
+  "require": "4.3",
+  "category": "devicecommunication",
+  "hasDependency": true,
+  "hasOwnDeamon": true,
+  "maxDependancyInstallTime": 30,
+  "language": [
+    "fr_FR"
+  ]
+}
