@@ -13,5 +13,14 @@
   "maxDependancyInstallTime": 30,
   "language": [
     "fr_FR"
+  ],
+  "compatibility": [
+    "miniplus",
+    "smart",
+    "rpi",
+    "docker",
+    "diy",
+    "v4",
+    "atlas"
   ]
 }
