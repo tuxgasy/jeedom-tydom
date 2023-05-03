@@ -195,6 +195,32 @@ if (isset($result['msg_type'])) {
                 $cmdAction->setConfiguration('minValue', 0);
                 $cmdAction->setConfiguration('maxValue', 100);
                 $cmdAction->save();
+
+                $cmdAction = $eqLogic->getCmd(null, 'set_'.$data['name'].':100');
+                if (!is_object($cmdAction)) {
+                  $cmdAction = new tydomCmd();
+                  $cmdAction->setLogicalId('set_'.$data['name'].':100');
+                  $cmdAction->setIsVisible(1);
+                  $cmdAction->setName('On');
+                }
+                $cmdAction->setEqLogic_id($eqLogic->getId());
+                $cmdAction->setValue($cmd->getId());
+                $cmdAction->setType('action');
+                $cmdAction->setSubType('other');
+                $cmdAction->save();
+
+                $cmdAction = $eqLogic->getCmd(null, 'set_'.$data['name'].':0');
+                if (!is_object($cmdAction)) {
+                  $cmdAction = new tydomCmd();
+                  $cmdAction->setLogicalId('set_'.$data['name'].':0');
+                  $cmdAction->setIsVisible(1);
+                  $cmdAction->setName('Off');
+                }
+                $cmdAction->setEqLogic_id($eqLogic->getId());
+                $cmdAction->setValue($cmd->getId());
+                $cmdAction->setType('action');
+                $cmdAction->setSubType('other');
+                $cmdAction->save();
               }
             }
           }

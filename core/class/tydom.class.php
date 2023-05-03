@@ -234,13 +234,22 @@ class tydomCmd extends cmd {
       throw new Exception(_('Equipement logical ID incorrect'));
     }
 
-    switch ($this->getSubType()) {
-      case 'slider':
-      case 'select':
-        $value = $_options[$this->getSubType()];
-        break;
-      default:
-        throw new Exception(_('Commande type inconnue : ') . json_encode($_options));
+    $value = null;
+    $endpointValue = explode(':', $action[1], 2);
+    if (count($endpointValue) == 2) {
+      $action[1] = $endpointValue[0];
+      $value = $endpointValue[1];
+    }
+
+    if ($value === null) {
+      switch ($this->getSubType()) {
+        case 'slider':
+        case 'select':
+          $value = $_options[$this->getSubType()];
+          break;
+        default:
+          throw new Exception(_('Commande type inconnue : ') . json_encode($_options));
+      }
     }
 
     $params = [
