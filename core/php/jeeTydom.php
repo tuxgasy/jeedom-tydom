@@ -102,6 +102,7 @@ if (isset($result['msg_type'])) {
             }
             $cmd->setEqLogic_id($eqLogic->getId());
             $cmd->setType('info');
+            $cmd->setSubType('string');
 
             if ($eqLogic->getConfiguration('last_usage') == 'boiler') {
               switch ($data['name']) {
@@ -125,9 +126,18 @@ if (isset($result['msg_type'])) {
                 case 'tempSensorShortCut':
                   $cmd->setSubType('binary');
                   break;
+              }
+            }
 
-                default:
-                  $cmd->setSubType('string');
+            if ($eqLogic->getConfiguration('last_usage') == 'light') {
+              switch ($data['name']) {
+                case 'level':
+                  $cmd->setSubType('numeric');
+                  break;
+
+                case 'thermicDefect':
+                case 'onFavPos':
+                  $cmd->setSubType('binary');
                   break;
               }
             }
@@ -165,6 +175,25 @@ if (isset($result['msg_type'])) {
                 $cmdAction->setType('action');
                 $cmdAction->setSubType('select');
                 $cmdAction->setConfiguration('listValue', 'NORMAL|NORMAL;STOP|STOP;ANTI_FROST|ANTI_FROST');
+                $cmdAction->save();
+              }
+            }
+
+            if ($eqLogic->getConfiguration('last_usage') == 'light') {
+              if ($data['name'] == 'level') {
+                $cmdAction = $eqLogic->getCmd(null, 'set_'.$data['name']);
+                if (!is_object($cmdAction)) {
+                  $cmdAction = new tydomCmd();
+                  $cmdAction->setLogicalId('set_'.$data['name']);
+                  $cmdAction->setIsVisible(1);
+                  $cmdAction->setName('set_'.$data['name']);
+                }
+                $cmdAction->setEqLogic_id($eqLogic->getId());
+                $cmdAction->setValue($cmd->getId());
+                $cmdAction->setType('action');
+                $cmdAction->setSubType('slider');
+                $cmdAction->setConfiguration('minValue', 0);
+                $cmdAction->setConfiguration('maxValue', 100);
                 $cmdAction->save();
               }
             }
