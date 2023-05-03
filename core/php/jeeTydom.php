@@ -142,6 +142,19 @@ if (isset($result['msg_type'])) {
               }
             }
 
+            if ($eqLogic->getConfiguration('last_usage') == 'shutter') {
+              switch ($data['name']) {
+                case 'position':
+                  $cmd->setSubType('numeric');
+                  break;
+
+                case 'thermicDefect':
+                case 'onFavPos':
+                  $cmd->setSubType('binary');
+                  break;
+              }
+            }
+
             $cmd->save();
             $cmd->event($data['value']);
 
@@ -220,6 +233,25 @@ if (isset($result['msg_type'])) {
                 $cmdAction->setValue($cmd->getId());
                 $cmdAction->setType('action');
                 $cmdAction->setSubType('other');
+                $cmdAction->save();
+              }
+            }
+
+            if ($eqLogic->getConfiguration('last_usage') == 'shutter') {
+              if ($data['name'] == 'position') {
+                $cmdAction = $eqLogic->getCmd(null, 'set_'.$data['name']);
+                if (!is_object($cmdAction)) {
+                  $cmdAction = new tydomCmd();
+                  $cmdAction->setLogicalId('set_'.$data['name']);
+                  $cmdAction->setIsVisible(1);
+                  $cmdAction->setName('set_'.$data['name']);
+                }
+                $cmdAction->setEqLogic_id($eqLogic->getId());
+                $cmdAction->setValue($cmd->getId());
+                $cmdAction->setType('action');
+                $cmdAction->setSubType('slider');
+                $cmdAction->setConfiguration('minValue', 0);
+                $cmdAction->setConfiguration('maxValue', 100);
                 $cmdAction->save();
               }
             }
