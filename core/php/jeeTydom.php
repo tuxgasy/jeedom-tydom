@@ -253,6 +253,71 @@ if (isset($result['msg_type'])) {
                 $cmdAction->setConfiguration('minValue', 0);
                 $cmdAction->setConfiguration('maxValue', 100);
                 $cmdAction->save();
+
+                $cmdAction = $eqLogic->getCmd(null, 'set_positionCmd:DOWN');
+                if (!is_object($cmdAction)) {
+                  $cmdAction = new tydomCmd();
+                  $cmdAction->setLogicalId('set_positionCmd:DOWN');
+                  $cmdAction->setIsVisible(1);
+                  $cmdAction->setName('Down');
+                }
+                $cmdAction->setEqLogic_id($eqLogic->getId());
+                $cmdAction->setValue($cmd->getId());
+                $cmdAction->setType('action');
+                $cmdAction->setSubType('other');
+                $cmdAction->save();
+
+                $cmdAction = $eqLogic->getCmd(null, 'set_positionCmd:UP');
+                if (!is_object($cmdAction)) {
+                  $cmdAction = new tydomCmd();
+                  $cmdAction->setLogicalId('set_positionCmd:UP');
+                  $cmdAction->setIsVisible(1);
+                  $cmdAction->setName('Up');
+                }
+                $cmdAction->setEqLogic_id($eqLogic->getId());
+                $cmdAction->setValue($cmd->getId());
+                $cmdAction->setType('action');
+                $cmdAction->setSubType('other');
+                $cmdAction->save();
+
+                $cmdAction = $eqLogic->getCmd(null, 'set_positionCmd:STOP');
+                if (!is_object($cmdAction)) {
+                  $cmdAction = new tydomCmd();
+                  $cmdAction->setLogicalId('set_positionCmd:STOP');
+                  $cmdAction->setIsVisible(1);
+                  $cmdAction->setName('Stop');
+                }
+                $cmdAction->setEqLogic_id($eqLogic->getId());
+                $cmdAction->setValue($cmd->getId());
+                $cmdAction->setType('action');
+                $cmdAction->setSubType('other');
+                $cmdAction->save();
+
+                $cmdAction = $eqLogic->getCmd(null, 'set_positionCmd:FAVORIT1');
+                if (!is_object($cmdAction)) {
+                  $cmdAction = new tydomCmd();
+                  $cmdAction->setLogicalId('set_positionCmd:FAVORIT1');
+                  $cmdAction->setIsVisible(1);
+                  $cmdAction->setName('Favorit1');
+                }
+                $cmdAction->setEqLogic_id($eqLogic->getId());
+                $cmdAction->setValue($cmd->getId());
+                $cmdAction->setType('action');
+                $cmdAction->setSubType('other');
+                $cmdAction->save();
+
+                $cmdAction = $eqLogic->getCmd(null, 'set_positionCmd:FAVORIT2');
+                if (!is_object($cmdAction)) {
+                  $cmdAction = new tydomCmd();
+                  $cmdAction->setLogicalId('set_positionCmd:FAVORIT2');
+                  $cmdAction->setIsVisible(1);
+                  $cmdAction->setName('Favorit2');
+                }
+                $cmdAction->setEqLogic_id($eqLogic->getId());
+                $cmdAction->setValue($cmd->getId());
+                $cmdAction->setType('action');
+                $cmdAction->setSubType('other');
+                $cmdAction->save();
               }
             }
           }
