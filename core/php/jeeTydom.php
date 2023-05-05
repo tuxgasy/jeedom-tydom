@@ -99,10 +99,10 @@ if (isset($result['msg_type'])) {
               $cmd->setLogicalId($data['name']);
               $cmd->setIsVisible(1);
               $cmd->setName($data['name']);
+              $cmd->setSubType('string');
             }
             $cmd->setEqLogic_id($eqLogic->getId());
             $cmd->setType('info');
-            $cmd->setSubType('string');
 
             if ($eqLogic->getConfiguration('last_usage') == 'boiler') {
               switch ($data['name']) {
