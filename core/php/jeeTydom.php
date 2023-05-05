@@ -103,6 +103,7 @@ if (isset($result['msg_type'])) {
               $cmd = new tydomCmd();
               $cmd->setLogicalId($data['name']);
               $cmd->setName($data['name']);
+              $cmd->setUnite(isset($confCmd['unite']) ? $confCmd['unite'] : '');
               $cmd->setIsVisible(isset($confCmd['isVisible']) ? $confCmd['isVisible'] : 1);
               $cmd->setIsHistorized(isset($confCmd['isHistorized']) ? $confCmd['isHistorized'] : 0);
               $cmd->setSubType(isset($confCmd['subtype']) ? $confCmd['subtype'] : 'string');
