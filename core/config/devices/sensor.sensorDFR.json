@@ -1,0 +1,55 @@
+{
+   "name":"Capteur de mouvements",
+   "configuration":{
+      "battery_type":"2x1.5V AA"
+   },
+   "commands":{
+      "motionDetect":{
+         "name":"Etat",
+         "type":"info",
+         "subtype":"binary",
+         "isVisible":1,
+         "isHistorized":1,
+         "logicalId":"intrusionDetect",
+         "template":{
+            "dashboard":"core::timePresence",
+            "mobile":"core::timePresence"
+         },
+         "display":{
+            "invertBinary":1
+         }
+      },
+      "autoProtect":{
+         "name":"Auto protection",
+         "generic_type":"SABOTAGE",
+         "type":"info",
+         "subtype":"binary",
+         "isVisible":1,
+         "isHistorized":1,
+         "logicalId":"autoProtect",
+         "template":{
+            "dashboard":"core::timeAlert",
+            "mobile":"core::timeAlert"
+         },
+         "display":{
+            "invertBinary":1
+         }
+      },
+      "battDefect":{
+         "name":"Batterie",
+         "type":"info",
+         "subtype":"binary",
+         "isVisible":0,
+         "isHistorized":0,
+         "logicalId":"battDefect"
+      },
+      "config":{
+         "name":"Config",
+         "type":"info",
+         "subtype":"string",
+         "isVisible":0,
+         "isHistorized":0,
+         "logicalId":"config"
+      }
+   }
+}

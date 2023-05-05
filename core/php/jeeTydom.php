@@ -17,6 +17,7 @@
  */
 
 require_once dirname(__FILE__) . "/../../../../core/php/core.inc.php";
+require_once dirname(__FILE__) . "/../class/tydom.class.php";
 
 if (!jeedom::apiAccess(init('apikey'), 'tydom')) {
   echo _('Vous n\'etes pas autorisé à effectuer cette action', __FILE__);
@@ -92,14 +93,37 @@ if (isset($result['msg_type'])) {
             continue;
           }
 
+          $conf = tydom::getDefaultConfiguration($eqLogic->getConfiguration('first_usage'), $eqLogic->getConfiguration('last_usage'));
+          log::add('tydom', 'debug', "default configuration equipement  : " . $conf);
           foreach ($endpoint['data'] as $data) {
+            $confCmd = !isset($conf['commands']) ? array() : !isset($conf['commands'][$data['name']]) ? array() : $conf['commands'][$data['name']];
+            log::add('tydom', 'debug', "default configuration commande  : " . $confCmd);
             $cmd = $eqLogic->getCmd(null, $data['name']);
             if (!is_object($cmd)) {
               $cmd = new tydomCmd();
               $cmd->setLogicalId($data['name']);
-              $cmd->setIsVisible(1);
               $cmd->setName($data['name']);
-              $cmd->setSubType('string');
+              $cmd->setIsVisible(isset($confCmd['isVisible']) ? $confCmd['isVisible'] : 1);
+              $cmd->setIsHistorized(isset($confCmd['isHistorized']) ? $confCmd['isHistorized'] : 0);
+              $cmd->setSubType(isset($confCmd['subtype']) ? $confCmd['subtype'] : 'string');
+              if (isset($confCmd['configuration'])) {
+                foreach ($confCmd['configuration'] as $key => $value) {
+                  log::add('tydom', 'debug', "set configuration $key = $value");
+                  $cmd->setConfiguration($key, $value);
+                }
+              }
+              if (isset($confCmd['template'])) {
+                foreach ($confCmd['template'] as $key => $value) {
+                  log::add('tydom', 'debug', "set template $key = $value");
+                  $cmd->setTemplate($key, $value);
+                }
+              }
+              if (isset($confCmd['display'])) {
+                foreach ($confCmd['display'] as $key => $value) {
+                  log::add('tydom', 'debug', "set display $key = $value");
+                  $cmd->setDisplay($key, $value);
+                }
+              }
             }
             $cmd->setEqLogic_id($eqLogic->getId());
             $cmd->setType('info');
