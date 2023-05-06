@@ -93,10 +93,10 @@ if (isset($result['msg_type'])) {
           }
 
           $conf = tydom::getDefaultConfiguration($eqLogic->getConfiguration('first_usage'), $eqLogic->getConfiguration('last_usage'));
-          log::add('tydom', 'debug', "default configuration equipement  : " . $conf);
+          log::add('tydom', 'debug', "default configuration equipement  : " . json_encode($conf));
           foreach ($endpoint['data'] as $data) {
             $confCmd = !isset($conf['commands']) ? array() : !isset($conf['commands'][$data['name']]) ? array() : $conf['commands'][$data['name']];
-            log::add('tydom', 'debug', "default configuration commande  : " . $confCmd);
+            log::add('tydom', 'debug', "default configuration commande  : " . json_encode($confCmd));
             $cmd = $eqLogic->getCmd(null, $data['name']);
             if (!is_object($cmd)) {
               $cmd = new tydomCmd();
@@ -127,57 +127,6 @@ if (isset($result['msg_type'])) {
             }
             $cmd->setEqLogic_id($eqLogic->getId());
             $cmd->setType('info');
-
-            if ($eqLogic->getConfiguration('last_usage') == 'boiler') {
-              switch ($data['name']) {
-                case 'setpoint':
-                case 'temperature':
-                  $cmd->setSubType('numeric');
-                  $cmd->setUnite('°C');
-                  break;
-
-                case 'absence':
-                case 'antifrostOn':
-                case 'batteryCmdDefect':
-                case 'boostOn':
-                case 'loadSheddingOn':
-                case 'openingDetected':
-                case 'presenceDetected':
-                case 'productionDefect':
-                case 'tempoOn':
-                case 'tempSensorDefect':
-                case 'tempSensorOpenCirc':
-                case 'tempSensorShortCut':
-                  $cmd->setSubType('binary');
-                  break;
-              }
-            }
-
-            if ($eqLogic->getConfiguration('last_usage') == 'light') {
-              switch ($data['name']) {
-                case 'level':
-                  $cmd->setSubType('numeric');
-                  break;
-
-                case 'thermicDefect':
-                case 'onFavPos':
-                  $cmd->setSubType('binary');
-                  break;
-              }
-            }
-
-            if ($eqLogic->getConfiguration('last_usage') == 'shutter') {
-              switch ($data['name']) {
-                case 'position':
-                  $cmd->setSubType('numeric');
-                  break;
-
-                case 'thermicDefect':
-                case 'onFavPos':
-                  $cmd->setSubType('binary');
-                  break;
-              }
-            }
 
             $cmd->save();
             $cmd->event($data['value']);
