@@ -17,7 +17,6 @@
  */
 
 require_once dirname(__FILE__) . "/../../../../core/php/core.inc.php";
-require_once dirname(__FILE__) . "/../class/tydom.class.php";
 
 if (!jeedom::apiAccess(init('apikey'), 'tydom')) {
   echo _('Vous n\'etes pas autorisé à effectuer cette action', __FILE__);
