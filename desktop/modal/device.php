@@ -26,14 +26,19 @@ if (!is_object($eqLogic)) {
 }
 
 $infos = tydom::getDeviceInfo($eqLogic->getLogicalId());
+$metadata = tydom::getDeviceMetadata($eqLogic->getLogicalId());
 
 ?>
 
 <ul class="nav nav-tabs" role="tablist">
-  <li role="presentation" class="active"><a href="#rawNodeTab" aria-controls="profile" role="tab" data-toggle="tab"><i class="fas fa-list-alt"></i> {{Informations brutes}}</a></li>
+  <li role="presentation" class="active"><a href="#deviceInfosTab" aria-controls="profile" role="tab" data-toggle="tab"><i class="fas fa-list-alt"></i> {{Informations brutes}}</a></li>
+  <li role="presentation"><a href="#deviceMetadataTab" aria-controls="profile" role="tab" data-toggle="tab"><i class="fas fa-list-alt"></i> {{Métadonnées}}</a></li>
 </ul>
 <div class="tab-content">
-  <div role="tabpanel" class="tab-pane active" id="rawNodeTab">
+  <div role="tabpanel" class="tab-pane active" id="deviceInfosTab">
     <pre><?php echo json_encode($infos, JSON_PRETTY_PRINT); ?></pre>
+  </div>
+  <div role="tabpanel" class="tab-pane" id="deviceMetadataTab">
+    <pre><?php echo json_encode($metadata, JSON_PRETTY_PRINT); ?></pre>
   </div>
 </div>

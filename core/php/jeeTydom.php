@@ -81,10 +81,10 @@ if (isset($result['msg_type'])) {
 
       file_put_contents(__DIR__ . '/../../data/devices/' . $eqLogicId . '.json', json_encode($endpoint));
     }
-  } else if ($result['msg_type'] == 'msg_data') {
+  } else if ($result['msg_type'] == 'msg_metadata') {
     foreach ($result['data'] as $item) {
       foreach ($item['endpoints'] as $endpoint) {
-        if (count($endpoint['data']) > 0) {
+        if (count($endpoint['metadata']) > 0) {
           $eqLogicId = $endpoint['id'] . '_' . $item['id'];
           $eqLogic = eqLogic::byLogicalId($eqLogicId, 'tydom');
           if (!is_object($eqLogic)) {
@@ -92,234 +92,115 @@ if (isset($result['msg_type'])) {
             continue;
           }
 
+          file_put_contents(__DIR__ . '/../../data/devices/metadata.' . $eqLogicId . '.json', json_encode($endpoint['metadata']));
+
+          foreach ($endpoint['metadata'] as $metadata) {
+            if (in_array($metadata['permission'], ['r', 'rw'])) {
+              $cmdInfo = $eqLogic->getCmd(null, $metadata['name']);
+              if (!is_object($cmdInfo)) {
+                $cmdInfo = new tydomCmd();
+                $cmdInfo->setLogicalId($metadata['name']);
+                $cmdInfo->setName($metadata['name']);
+                $cmdInfo->setIsVisible(0);
+                # @Todo load default config from json file here ?
+              }
+              $cmdInfo->setEqLogic_id($eqLogic->getId());
+              $cmdInfo->setType('info');
+
+              switch ($metadata['type']) {
+                case 'string':
+                case 'numeric':
+                  $cmdInfo->setSubType($metadata['type']);
+                  break;
+                case 'boolean':
+                  $cmdInfo->setSubType('binary');
+                  break;
+                default:
+                  if ($cmdInfo->getSubType() == null) {
+                    $cmdInfo->setSubType('other');
+                  }
+                  break;
+              }
+
+              if (isset($metadata['unit'])) {
+                switch ($metadata['unit']) {
+                  case 'degC':
+                    $cmdInfo->setUnite('°C');
+                    break;
+                  case 'boolean':
+                    $cmdInfo->setUnite('');
+                    break;
+                  default:
+                    $cmdInfo->setUnite($metadata['unit']);
+                    break;
+                }
+              }
+
+              $cmdInfo->save();
+            } else {
+              $cmdInfo = null;
+            }
+
+            if (in_array($metadata['permission'], ['w', 'rw'])) {
+              $cmdAction = $eqLogic->getCmd(null, 'set_'.$metadata['name']);
+              if (!is_object($cmdAction)) {
+                $cmdAction = new tydomCmd();
+                $cmdAction->setLogicalId('set_'.$metadata['name']);
+                $cmdAction->setName('set_'.$metadata['name']);
+                $cmdAction->setIsVisible(0);
+                # @Todo load default config from json file here ?
+              }
+              $cmdAction->setEqLogic_id($eqLogic->getId());
+              $cmdAction->setType('action');
+
+              if ($cmdInfo != null) {
+                $cmdAction->setValue($cmdInfo->getId());
+              }
+
+              if (isset($metadata['min']) and isset($metadata['max'])) {
+                $cmdAction->setSubType('slider');
+                $cmdAction->setConfiguration('minValue', $metadata['min']);
+                $cmdAction->setConfiguration('maxValue', $metadata['max']);
+              }
+
+              if (isset($metadata['enum_values'])) {
+                $cmdAction->setSubType('select');
+                $listValue = [];
+                foreach ($metadata['enum_values'] as $value) {
+                  $listValue[] = $value.'|'.$value;
+                }
+                $cmdAction->setConfiguration('listValue', implode(';', $listValue));
+              }
+
+              if ($cmdAction->getSubType() == null) {
+                $cmdAction->setSubType('other');
+              }
+
+              $cmdAction->save();
+            }
+          }
+        }
+      }
+    }
+  } else if ($result['msg_type'] == 'msg_data') {
+    foreach ($result['data'] as $item) {
+      foreach ($item['endpoints'] as $endpoint) {
+        if (count($endpoint['data']) > 0) {
+          $eqLogicId = $endpoint['id'] . '_' . $item['id'];
+          $eqLogic = eqLogic::byLogicalId($eqLogicId, 'tydom');
+          if (!is_object($eqLogic)) {
+            log::add('tydom', 'warning', _("Impossible de trouver l'équipement ID : ") . $eqLogicId);
+            continue;
+          }
+
           foreach ($endpoint['data'] as $data) {
             $cmd = $eqLogic->getCmd(null, $data['name']);
             if (!is_object($cmd)) {
-              $cmd = new tydomCmd();
-              $cmd->setLogicalId($data['name']);
-              $cmd->setIsVisible(1);
-              $cmd->setName($data['name']);
-            }
-            $cmd->setEqLogic_id($eqLogic->getId());
-            $cmd->setType('info');
-            $cmd->setSubType('string');
-
-            if ($eqLogic->getConfiguration('last_usage') == 'boiler') {
-              switch ($data['name']) {
-                case 'setpoint':
-                case 'temperature':
-                  $cmd->setSubType('numeric');
-                  $cmd->setUnite('°C');
-                  break;
-
-                case 'absence':
-                case 'antifrostOn':
-                case 'batteryCmdDefect':
-                case 'boostOn':
-                case 'loadSheddingOn':
-                case 'openingDetected':
-                case 'presenceDetected':
-                case 'productionDefect':
-                case 'tempoOn':
-                case 'tempSensorDefect':
-                case 'tempSensorOpenCirc':
-                case 'tempSensorShortCut':
-                  $cmd->setSubType('binary');
-                  break;
-              }
+              log::add('tydom', 'warning', _("Impossible de trouver la commande ID : ") . $data['name']);
+              continue;
             }
 
-            if ($eqLogic->getConfiguration('last_usage') == 'light') {
-              switch ($data['name']) {
-                case 'level':
-                  $cmd->setSubType('numeric');
-                  break;
-
-                case 'thermicDefect':
-                case 'onFavPos':
-                  $cmd->setSubType('binary');
-                  break;
-              }
-            }
-
-            if ($eqLogic->getConfiguration('last_usage') == 'shutter') {
-              switch ($data['name']) {
-                case 'position':
-                  $cmd->setSubType('numeric');
-                  break;
-
-                case 'thermicDefect':
-                case 'onFavPos':
-                  $cmd->setSubType('binary');
-                  break;
-              }
-            }
-
-            $cmd->save();
             $cmd->event($data['value']);
-
-            if ($eqLogic->getConfiguration('last_usage') == 'boiler') {
-              if ($data['name'] == 'setpoint') {
-                $cmdAction = $eqLogic->getCmd(null, 'set_'.$data['name']);
-                if (!is_object($cmdAction)) {
-                  $cmdAction = new tydomCmd();
-                  $cmdAction->setLogicalId('set_'.$data['name']);
-                  $cmdAction->setIsVisible(1);
-                  $cmdAction->setName('set_'.$data['name']);
-                }
-                $cmdAction->setEqLogic_id($eqLogic->getId());
-                $cmdAction->setValue($cmd->getId());
-                $cmdAction->setType('action');
-                $cmdAction->setSubType('slider');
-                $cmdAction->setConfiguration('minValue', 10);
-                $cmdAction->setConfiguration('maxValue', 30);
-                $cmdAction->setUnite('°C');
-                $cmdAction->save();
-              } else if ($data['name'] == 'hvacMode') {
-                $cmdAction = $eqLogic->getCmd(null, 'set_'.$data['name']);
-                if (!is_object($cmdAction)) {
-                  $cmdAction = new tydomCmd();
-                  $cmdAction->setLogicalId('set_'.$data['name']);
-                  $cmdAction->setIsVisible(1);
-                  $cmdAction->setName('set_'.$data['name']);
-                }
-                $cmdAction->setEqLogic_id($eqLogic->getId());
-                $cmdAction->setValue($cmd->getId());
-                $cmdAction->setType('action');
-                $cmdAction->setSubType('select');
-                $cmdAction->setConfiguration('listValue', 'NORMAL|NORMAL;STOP|STOP;ANTI_FROST|ANTI_FROST');
-                $cmdAction->save();
-              }
-            }
-
-            if ($eqLogic->getConfiguration('last_usage') == 'light') {
-              if ($data['name'] == 'level') {
-                $cmdAction = $eqLogic->getCmd(null, 'set_'.$data['name']);
-                if (!is_object($cmdAction)) {
-                  $cmdAction = new tydomCmd();
-                  $cmdAction->setLogicalId('set_'.$data['name']);
-                  $cmdAction->setIsVisible(1);
-                  $cmdAction->setName('set_'.$data['name']);
-                }
-                $cmdAction->setEqLogic_id($eqLogic->getId());
-                $cmdAction->setValue($cmd->getId());
-                $cmdAction->setType('action');
-                $cmdAction->setSubType('slider');
-                $cmdAction->setConfiguration('minValue', 0);
-                $cmdAction->setConfiguration('maxValue', 100);
-                $cmdAction->save();
-
-                $cmdAction = $eqLogic->getCmd(null, 'set_'.$data['name'].':100');
-                if (!is_object($cmdAction)) {
-                  $cmdAction = new tydomCmd();
-                  $cmdAction->setLogicalId('set_'.$data['name'].':100');
-                  $cmdAction->setIsVisible(1);
-                  $cmdAction->setName('On');
-                }
-                $cmdAction->setEqLogic_id($eqLogic->getId());
-                $cmdAction->setValue($cmd->getId());
-                $cmdAction->setType('action');
-                $cmdAction->setSubType('other');
-                $cmdAction->save();
-
-                $cmdAction = $eqLogic->getCmd(null, 'set_'.$data['name'].':0');
-                if (!is_object($cmdAction)) {
-                  $cmdAction = new tydomCmd();
-                  $cmdAction->setLogicalId('set_'.$data['name'].':0');
-                  $cmdAction->setIsVisible(1);
-                  $cmdAction->setName('Off');
-                }
-                $cmdAction->setEqLogic_id($eqLogic->getId());
-                $cmdAction->setValue($cmd->getId());
-                $cmdAction->setType('action');
-                $cmdAction->setSubType('other');
-                $cmdAction->save();
-              }
-            }
-
-            if ($eqLogic->getConfiguration('last_usage') == 'shutter') {
-              if ($data['name'] == 'position') {
-                $cmdAction = $eqLogic->getCmd(null, 'set_'.$data['name']);
-                if (!is_object($cmdAction)) {
-                  $cmdAction = new tydomCmd();
-                  $cmdAction->setLogicalId('set_'.$data['name']);
-                  $cmdAction->setIsVisible(1);
-                  $cmdAction->setName('set_'.$data['name']);
-                }
-                $cmdAction->setEqLogic_id($eqLogic->getId());
-                $cmdAction->setValue($cmd->getId());
-                $cmdAction->setType('action');
-                $cmdAction->setSubType('slider');
-                $cmdAction->setConfiguration('minValue', 0);
-                $cmdAction->setConfiguration('maxValue', 100);
-                $cmdAction->save();
-
-                $cmdAction = $eqLogic->getCmd(null, 'set_positionCmd:DOWN');
-                if (!is_object($cmdAction)) {
-                  $cmdAction = new tydomCmd();
-                  $cmdAction->setLogicalId('set_positionCmd:DOWN');
-                  $cmdAction->setIsVisible(1);
-                  $cmdAction->setName('Down');
-                }
-                $cmdAction->setEqLogic_id($eqLogic->getId());
-                $cmdAction->setValue($cmd->getId());
-                $cmdAction->setType('action');
-                $cmdAction->setSubType('other');
-                $cmdAction->save();
-
-                $cmdAction = $eqLogic->getCmd(null, 'set_positionCmd:UP');
-                if (!is_object($cmdAction)) {
-                  $cmdAction = new tydomCmd();
-                  $cmdAction->setLogicalId('set_positionCmd:UP');
-                  $cmdAction->setIsVisible(1);
-                  $cmdAction->setName('Up');
-                }
-                $cmdAction->setEqLogic_id($eqLogic->getId());
-                $cmdAction->setValue($cmd->getId());
-                $cmdAction->setType('action');
-                $cmdAction->setSubType('other');
-                $cmdAction->save();
-
-                $cmdAction = $eqLogic->getCmd(null, 'set_positionCmd:STOP');
-                if (!is_object($cmdAction)) {
-                  $cmdAction = new tydomCmd();
-                  $cmdAction->setLogicalId('set_positionCmd:STOP');
-                  $cmdAction->setIsVisible(1);
-                  $cmdAction->setName('Stop');
-                }
-                $cmdAction->setEqLogic_id($eqLogic->getId());
-                $cmdAction->setValue($cmd->getId());
-                $cmdAction->setType('action');
-                $cmdAction->setSubType('other');
-                $cmdAction->save();
-
-                $cmdAction = $eqLogic->getCmd(null, 'set_positionCmd:FAVORIT1');
-                if (!is_object($cmdAction)) {
-                  $cmdAction = new tydomCmd();
-                  $cmdAction->setLogicalId('set_positionCmd:FAVORIT1');
-                  $cmdAction->setIsVisible(1);
-                  $cmdAction->setName('Favorit1');
-                }
-                $cmdAction->setEqLogic_id($eqLogic->getId());
-                $cmdAction->setValue($cmd->getId());
-                $cmdAction->setType('action');
-                $cmdAction->setSubType('other');
-                $cmdAction->save();
-
-                $cmdAction = $eqLogic->getCmd(null, 'set_positionCmd:FAVORIT2');
-                if (!is_object($cmdAction)) {
-                  $cmdAction = new tydomCmd();
-                  $cmdAction->setLogicalId('set_positionCmd:FAVORIT2');
-                  $cmdAction->setIsVisible(1);
-                  $cmdAction->setName('Favorit2');
-                }
-                $cmdAction->setEqLogic_id($eqLogic->getId());
-                $cmdAction->setValue($cmd->getId());
-                $cmdAction->setType('action');
-                $cmdAction->setSubType('other');
-                $cmdAction->save();
-              }
-            }
           }
         }
       }
