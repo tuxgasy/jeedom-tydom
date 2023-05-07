@@ -88,6 +88,8 @@ class MessageHandler:
                 msg_type = 'msg_config'
             elif "cmetadata" in data:
                 msg_type = 'msg_cmetadata'
+            elif "metadata" in data:
+                msg_type = 'msg_metadata'
             elif "cdata" in data:
                 msg_type = 'msg_cdata'
             elif "id" in first:
@@ -112,7 +114,12 @@ class MessageHandler:
 
                     elif msg_type == 'msg_cmetadata':
                         parsed = json.loads(data)
+                        self.jeedom_com.send_change_immediate({'msg_type': msg_type, 'data': parsed})
                         await self.parse_cmeta_data(parsed=parsed)
+
+                    elif msg_type == 'msg_metadata':
+                        parsed = json.loads(data)
+                        self.jeedom_com.send_change_immediate({'msg_type': msg_type, 'data': parsed})
 
                     elif msg_type == 'msg_data':
                         parsed = json.loads(data)

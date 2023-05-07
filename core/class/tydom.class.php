@@ -126,6 +126,14 @@ class tydom extends eqLogic {
     return json_decode(file_get_contents($file), true);
   }
 
+  public static function getDeviceMetadata($eqLogicId) {
+    $file = __DIR__ . '/../../data/devices/metadata.' . $eqLogicId . '.json';
+    if (!file_exists($file)) {
+      return array();
+    }
+    return json_decode(file_get_contents($file), true);
+  }
+
   public static function synchronize() {
     self::sendto_daemon(['action' => 'sync']);
   }
@@ -148,6 +156,16 @@ class tydom extends eqLogic {
 
   public static function cronDaily() {
     self::synchronize();
+  }
+
+  public static function getDefaultConfiguration($first_usage = 'unknow', $last_usage = 'unknow') {
+    $cfg = __DIR__ . '/../config/devices/' . $first_usage . '.' . $last_usage . '.json';
+    log::add('tydom', 'debug', "load configuration : $cfg");
+    if (!file_exists($cfg)) {
+      log::add('tydom', 'debug', "configuration not found");
+      return array();
+    }
+    return json_decode(file_get_contents($cfg), true);
   }
 
   /*     * *********************Méthodes d'instance************************* */
@@ -214,6 +232,35 @@ class tydom extends eqLogic {
 
 class tydomCmd extends cmd {
   /*     * *********************Methode d'instance************************* */
+  public function setDefaultConfiguration($eqLogicDefaultConf) {
+    $defaultConf = !isset($eqLogicDefaultConf['commands']) ? array() : !isset($eqLogicDefaultConf['commands'][$data['name']]) ? array() : $eqLogicDefaultConf['commands'][$data['name']];
+
+    $this->setUnite(isset($defaultConf['unite']) ? $defaultConf['unite'] : '');
+    $this->setIsVisible(isset($defaultConf['isVisible']) ? $defaultConf['isVisible'] : 1);
+    $this->setIsHistorized(isset($defaultConf['isHistorized']) ? $defaultConf['isHistorized'] : 0);
+    $this->setSubType(isset($defaultConf['subtype']) ? $defaultConf['subtype'] : 'string');
+
+    if (isset($defaultConf['configuration'])) {
+      foreach ($defaultConf['configuration'] as $key => $value) {
+        log::add('tydom', 'debug', "set configuration $key = $value");
+        $cmd->setConfiguration($key, $value);
+      }
+    }
+
+    if (isset($confCmd['template'])) {
+      foreach ($confCmd['template'] as $key => $value) {
+        log::add('tydom', 'debug', "set template $key = $value");
+        $cmd->setTemplate($key, $value);
+      }
+    }
+
+    if (isset($confCmd['display'])) {
+      foreach ($confCmd['display'] as $key => $value) {
+        log::add('tydom', 'debug', "set display $key = $value");
+        $cmd->setDisplay($key, $value);
+      }
+    }
+  }
 
   // Exécution d'une commande
   public function execute($_options = array()) {

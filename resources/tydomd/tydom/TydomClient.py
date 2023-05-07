@@ -333,6 +333,7 @@ class TydomClient:
     async def get_data(self):
         await self.get_configs_file()
         await self.get_devices_cmeta()
+        await self.get_devices_meta()
         await self.get_devices_data()
 
     # Give order to endpoint

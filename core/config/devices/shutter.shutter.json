@@ -1,0 +1,23 @@
+{
+   "name":"Lumière",
+   "commands":{
+      "onFavPos": {
+         "type":"info",
+         "subtype":"binary",
+         "isVisible":0,
+         "isHistorized":0
+      },
+      "position": {
+         "type":"info",
+         "subtype":"numeric",
+         "isVisible":1,
+         "isHistorized":0
+      },
+      "thermicDefect": {
+         "type":"info",
+         "subtype":"binary",
+         "isVisible":0,
+         "isHistorized":0
+      }
+   }
+}
