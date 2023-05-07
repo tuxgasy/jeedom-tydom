@@ -88,11 +88,14 @@ if (isset($result['msg_type'])) {
           $eqLogicId = $endpoint['id'] . '_' . $item['id'];
           $eqLogic = eqLogic::byLogicalId($eqLogicId, 'tydom');
           if (!is_object($eqLogic)) {
-            log::add('tydom', 'warning', _("Impossible de trouver l'équipement ID : ") . $eqLogic);
+            log::add('tydom', 'warning', _("Impossible de trouver l'équipement ID : ") . $eqLogicId);
             continue;
           }
 
           file_put_contents(__DIR__ . '/../../data/devices/metadata.' . $eqLogicId . '.json', json_encode($endpoint['metadata']));
+
+          $eqLogicDefaultConf = tydom::getDefaultConfiguration($eqLogic->getConfiguration('first_usage'), $eqLogic->getConfiguration('last_usage'));
+          log::add('tydom', 'debug', "default configuration equipement  : " . json_encode($conf));
 
           foreach ($endpoint['metadata'] as $metadata) {
             if (in_array($metadata['permission'], ['r', 'rw'])) {
@@ -101,8 +104,7 @@ if (isset($result['msg_type'])) {
                 $cmdInfo = new tydomCmd();
                 $cmdInfo->setLogicalId($metadata['name']);
                 $cmdInfo->setName($metadata['name']);
-                $cmdInfo->setIsVisible(0);
-                # @Todo load default config from json file here ?
+                $cmdInfo->setDefaultConfiguration($eqLogicDefaultConf);
               }
               $cmdInfo->setEqLogic_id($eqLogic->getId());
               $cmdInfo->setType('info');
@@ -136,7 +138,12 @@ if (isset($result['msg_type'])) {
                 }
               }
 
-              $cmdInfo->save();
+              try {
+                $cmdInfo->save();
+              } catch (Exception $e) {
+                log::add('tydom', 'error', _('Echec de creation de commande info: ') . json_encode($metadata) . ' | Error: ' . $e->getMessage());
+                $cmdInfo = null;
+              }
             } else {
               $cmdInfo = null;
             }
@@ -147,8 +154,7 @@ if (isset($result['msg_type'])) {
                 $cmdAction = new tydomCmd();
                 $cmdAction->setLogicalId('set_'.$metadata['name']);
                 $cmdAction->setName('set_'.$metadata['name']);
-                $cmdAction->setIsVisible(0);
-                # @Todo load default config from json file here ?
+                $cmdAction->setDefaultConfiguration($eqLogicDefaultConf);
               }
               $cmdAction->setEqLogic_id($eqLogic->getId());
               $cmdAction->setType('action');
@@ -176,7 +182,11 @@ if (isset($result['msg_type'])) {
                 $cmdAction->setSubType('other');
               }
 
-              $cmdAction->save();
+              try {
+                $cmdAction->save();
+              } catch (Exception $e) {
+                log::add('tydom', 'error', _('Echec de creation de commande action: ') . json_encode($metadata) . ' | Error: ' . $e->getMessage());
+              }
             }
           }
         }

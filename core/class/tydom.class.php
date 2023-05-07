@@ -232,6 +232,35 @@ class tydom extends eqLogic {
 
 class tydomCmd extends cmd {
   /*     * *********************Methode d'instance************************* */
+  public function setDefaultConfiguration($eqLogicDefaultConf) {
+    $defaultConf = !isset($eqLogicDefaultConf['commands']) ? array() : !isset($eqLogicDefaultConf['commands'][$data['name']]) ? array() : $eqLogicDefaultConf['commands'][$data['name']];
+
+    $this->setUnite(isset($defaultConf['unite']) ? $defaultConf['unite'] : '');
+    $this->setIsVisible(isset($defaultConf['isVisible']) ? $defaultConf['isVisible'] : 1);
+    $this->setIsHistorized(isset($defaultConf['isHistorized']) ? $defaultConf['isHistorized'] : 0);
+    $this->setSubType(isset($defaultConf['subtype']) ? $defaultConf['subtype'] : 'string');
+
+    if (isset($defaultConf['configuration'])) {
+      foreach ($defaultConf['configuration'] as $key => $value) {
+        log::add('tydom', 'debug', "set configuration $key = $value");
+        $cmd->setConfiguration($key, $value);
+      }
+    }
+
+    if (isset($confCmd['template'])) {
+      foreach ($confCmd['template'] as $key => $value) {
+        log::add('tydom', 'debug', "set template $key = $value");
+        $cmd->setTemplate($key, $value);
+      }
+    }
+
+    if (isset($confCmd['display'])) {
+      foreach ($confCmd['display'] as $key => $value) {
+        log::add('tydom', 'debug', "set display $key = $value");
+        $cmd->setDisplay($key, $value);
+      }
+    }
+  }
 
   // Exécution d'une commande
   public function execute($_options = array()) {
