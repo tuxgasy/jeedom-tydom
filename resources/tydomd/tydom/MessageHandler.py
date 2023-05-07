@@ -114,6 +114,7 @@ class MessageHandler:
 
                     elif msg_type == 'msg_cmetadata':
                         parsed = json.loads(data)
+                        self.jeedom_com.send_change_immediate({'msg_type': msg_type, 'data': parsed})
                         await self.parse_cmeta_data(parsed=parsed)
 
                     elif msg_type == 'msg_metadata':

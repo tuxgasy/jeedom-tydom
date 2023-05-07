@@ -81,6 +81,21 @@ if (isset($result['msg_type'])) {
 
       file_put_contents(__DIR__ . '/../../data/devices/' . $eqLogicId . '.json', json_encode($endpoint));
     }
+  } else if ($result['msg_type'] == 'msg_cmetadata') {
+    foreach ($result['data'] as $item) {
+      foreach ($item['endpoints'] as $endpoint) {
+        if (count($endpoint['cmetadata']) > 0) {
+          $eqLogicId = $endpoint['id'] . '_' . $item['id'];
+          $eqLogic = eqLogic::byLogicalId($eqLogicId, 'tydom');
+          if (!is_object($eqLogic)) {
+            log::add('tydom', 'warning', _("Impossible de trouver l'équipement ID : ") . $eqLogicId);
+            continue;
+          }
+
+          file_put_contents(__DIR__ . '/../../data/devices/metadata.' . $eqLogicId . '.json', json_encode($endpoint['cmetadata']));
+        }
+      }
+    }
   } else if ($result['msg_type'] == 'msg_metadata') {
     foreach ($result['data'] as $item) {
       foreach ($item['endpoints'] as $endpoint) {
