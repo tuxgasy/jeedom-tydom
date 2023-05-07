@@ -158,6 +158,16 @@ class tydom extends eqLogic {
     self::synchronize();
   }
 
+  public static function getDefaultConfiguration($first_usage = 'unknow', $last_usage = 'unknow') {
+    $cfg = __DIR__ . '/../config/devices/' . $first_usage . '.' . $last_usage . '.json';
+    log::add('tydom', 'debug', "load configuration : $cfg");
+    if (!file_exists($cfg)) {
+      log::add('tydom', 'debug', "configuration not found");
+      return array();
+    }
+    return json_decode(file_get_contents($cfg), true);
+  }
+
   /*     * *********************Méthodes d'instance************************* */
 
   public function getImage() {

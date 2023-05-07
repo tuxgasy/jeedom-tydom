@@ -1,0 +1,121 @@
+{
+   "name":"Chauffage",
+   "commands":{
+      "absence": {
+         "type":"info",
+         "subtype":"binary",
+         "isVisible":0,
+         "isHistorized":0
+      },
+      "anticipCoeff": {
+         "type":"info",
+         "subtype":"string",
+         "isVisible":0,
+         "isHistorized":0
+      },
+      "antifrostOn": {
+         "type":"info",
+         "subtype":"binary",
+         "isVisible":0,
+         "isHistorized":0
+      },
+      "authorization": {
+         "type":"info",
+         "subtype":"string",
+         "isVisible":0,
+         "isHistorized":0
+      },
+      "batteryCmdDefect": {
+         "type":"info",
+         "subtype":"binary",
+         "isVisible":0,
+         "isHistorized":0
+      },
+      "boostOn": {
+         "type":"info",
+         "subtype":"binary",
+         "isVisible":0,
+         "isHistorized":0
+      },
+      "hvacMode": {
+         "type":"info",
+         "subtype":"string",
+         "isVisible":1,
+         "isHistorized":0
+      },
+      "loadSheddingOn": {
+         "type":"info",
+         "subtype":"binary",
+         "isVisible":0,
+         "isHistorized":0
+      },
+      "openingDetected": {
+         "type":"info",
+         "subtype":"binary",
+         "isVisible":0,
+         "isHistorized":0
+      },
+      "presenceDetected": {
+         "type":"info",
+         "subtype":"binary",
+         "isVisible":0,
+         "isHistorized":0
+      },
+      "productionDefect": {
+         "type":"info",
+         "subtype":"binary",
+         "isVisible":0,
+         "isHistorized":0
+      },
+      "setpoint": {
+         "type":"info",
+         "subtype":"numeric",
+         "unite":"°C",
+         "isVisible":1,
+         "isHistorized":0
+      },
+      "temperature": {
+         "type":"info",
+         "subtype":"numeric",
+         "unite":"°C",
+         "isVisible":1,
+         "isHistorized":0
+      },
+      "tempoOn": {
+         "type":"info",
+         "subtype":"binary",
+         "isVisible":0,
+         "isHistorized":0
+      },
+      "tempSensorDefect": {
+         "type":"info",
+         "subtype":"binary",
+         "isVisible":0,
+         "isHistorized":0
+      },
+      "tempSensorOpenCirc": {
+         "type":"info",
+         "subtype":"binary",
+         "isVisible":0,
+         "isHistorized":0
+      },
+      "tempSensorShortCut": {
+         "type":"info",
+         "subtype":"binary",
+         "isVisible":0,
+         "isHistorized":0
+      },
+      "thermicLevel": {
+         "type":"info",
+         "subtype":"string",
+         "isVisible":0,
+         "isHistorized":0
+      },
+      "timeDelay": {
+         "type":"info",
+         "subtype":"string",
+         "isVisible":0,
+         "isHistorized":0
+      }
+   }
+}
