@@ -149,43 +149,43 @@ if (isset($result['msg_type'])) {
             }
 
             if (in_array($metadata['permission'], ['w', 'rw'])) {
-              $cmdAction = $eqLogic->getCmd(null, 'set_'.$metadata['name']);
-              if (!is_object($cmdAction)) {
-                $cmdAction = new tydomCmd();
-                $cmdAction->setLogicalId('set_'.$metadata['name']);
-                $cmdAction->setName('set_'.$metadata['name']);
-                $cmdAction->setDefaultConfiguration($eqLogicDefaultConf);
-              }
-              $cmdAction->setEqLogic_id($eqLogic->getId());
-              $cmdAction->setType('action');
-
-              if ($cmdInfo != null) {
-                $cmdAction->setValue($cmdInfo->getId());
-              }
-
-              if (isset($metadata['min']) and isset($metadata['max'])) {
-                $cmdAction->setSubType('slider');
-                $cmdAction->setConfiguration('minValue', $metadata['min']);
-                $cmdAction->setConfiguration('maxValue', $metadata['max']);
-              }
-
+              $cmdIdBase = 'set_'.$metadata['name'];
               if (isset($metadata['enum_values'])) {
-                $cmdAction->setSubType('select');
-                $listValue = [];
+                $cmdIds = [];
                 foreach ($metadata['enum_values'] as $value) {
-                  $listValue[] = $value.'|'.$value;
+                  $cmdIds[] = $cmdIdBase.':'.$value;
                 }
-                $cmdAction->setConfiguration('listValue', implode(';', $listValue));
+              } else {
+                $cmdIds = [$cmdIdBase];
               }
 
-              if ($cmdAction->getSubType() == null) {
+              foreach ($cmdIds as $cmdId) {
+                $cmdAction = $eqLogic->getCmd(null, $cmdId);
+                if (!is_object($cmdAction)) {
+                  $cmdAction = new tydomCmd();
+                  $cmdAction->setLogicalId($cmdId);
+                  $cmdAction->setName($cmdId);
+                  $cmdAction->setDefaultConfiguration($eqLogicDefaultConf);
+                }
+                $cmdAction->setEqLogic_id($eqLogic->getId());
+                $cmdAction->setType('action');
                 $cmdAction->setSubType('other');
-              }
 
-              try {
-                $cmdAction->save();
-              } catch (Exception $e) {
-                log::add('tydom', 'error', _('Echec de creation de commande action: ') . json_encode($metadata) . ' | Error: ' . $e->getMessage());
+                if ($cmdInfo != null) {
+                  $cmdAction->setValue($cmdInfo->getId());
+                }
+
+                if (isset($metadata['min']) and isset($metadata['max'])) {
+                  $cmdAction->setSubType('slider');
+                  $cmdAction->setConfiguration('minValue', $metadata['min']);
+                  $cmdAction->setConfiguration('maxValue', $metadata['max']);
+                }
+
+                try {
+                  $cmdAction->save();
+                } catch (Exception $e) {
+                  log::add('tydom', 'error', _('Echec de creation de commande action: ') . json_encode($metadata) . ' | Error: ' . $e->getMessage());
+                }
               }
             }
           }
