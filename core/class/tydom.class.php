@@ -299,13 +299,36 @@ class tydomCmd extends cmd {
       }
     }
 
-    $params = [
-      'action' => $action[0],
-      'endpoint_name' => $action[1],
-      'device_id' => $device[1],
-      'endpoint_id' => $device[0],
-      'value' => $value,
-    ];
+    
+    if (strpos($value, ":") !== false) {
+      $params = [
+        'action' => $action[0],
+        'endpoint_name' => $action[1],
+        'device_id' => $device[1],
+        'endpoint_id' => $device[0],
+        'parameters' => [],
+      ];
+
+      $values = explode("|", $value);
+      $parameters = array();
+      foreach ($values as $val) {
+        $val = explode(":", $val);
+        if (json_decode($val[1]) == null) {
+            $params['parameters'][$val[0]] = $val[1];
+        } else {
+            $params['parameters'][$val[0]] = json_decode($val[1]);
+        }
+      }
+    } else {
+      $params = [
+        'action' => $action[0],
+        'endpoint_name' => $action[1],
+        'device_id' => $device[1],
+        'endpoint_id' => $device[0],
+        'value' => $value,
+      ];
+    }
+    log::add('tydom', 'debug', "sendto_daemon : " . json_encode($params));
     tydom::sendto_daemon($params);
   }
 }
