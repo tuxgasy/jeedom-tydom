@@ -8,6 +8,7 @@ import http.client
 import logging
 import os
 import ssl
+import json
 
 import websockets
 from requests.auth import HTTPDigestAuth
@@ -198,6 +199,45 @@ class TydomClient:
         logger.debug("Sending message to tydom (%s %s)", "PUT data", body)
         await self.connection.send(a_bytes)
         return 0
+
+    async def put_devices_cdata(self, device_id, endpoint_id, cmdName, parameters):
+        try:
+
+            logger.debug("put_devices_cdata")
+            body = (json.dumps(parameters))
+            logger.debug(body)
+
+            url = "PUT /devices/{device}/endpoints/{endpoint}/cdata?name={name}".format(
+                    device=str(device_id),
+                    endpoint=str(endpoint_id),
+                    name=str(cmdName))
+
+            logger.debug(
+                "URL : %s",
+                url)
+
+            str_request = (
+                self.cmd_prefix +
+                url + " HTTP/1.1\r\nContent-Length: " +
+                str(len(body)) +
+                "\r\nContent-Type: application/json; charset=UTF-8\r\nTransac-Id: 0\r\n\r\n" +
+                body +
+                "\r\n\r\n")
+
+            a_bytes = bytes(str_request, "ascii")
+            logger.debug(
+                "Sending message to tydom (%s %s)",
+                "PUT cdata",
+                body)
+
+            try:
+                await self.connection.send(a_bytes)
+                return 0
+            except BaseException:
+                logger.error("put_devices_cdata ERROR !", exc_info=True)
+                logger.error(a_bytes)
+        except BaseException:
+            logger.error("put_devices_cdata ERROR !", exc_info=True)
 
     async def put_alarm_cdata(self, device_id, alarm_id=None, value=None, zone_id=None):
 
