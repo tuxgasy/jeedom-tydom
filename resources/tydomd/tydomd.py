@@ -32,7 +32,10 @@ async def read_socket():
       return
 
     if message['action'] == 'set':
-      await tydom_client.put_devices_data(message['device_id'], message['endpoint_id'], message['endpoint_name'], message['value'])
+      if "parameters" in message:
+        await tydom_client.put_devices_cdata(message['device_id'], message['endpoint_id'], message['endpoint_name'], message['parameters'])
+      else:
+        await tydom_client.put_devices_data(message['device_id'], message['endpoint_id'], message['endpoint_name'], message['value'])
       return
 
     if message['action'] == 'poll':
