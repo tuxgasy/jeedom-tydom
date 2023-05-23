@@ -92,7 +92,7 @@ if (isset($result['msg_type'])) {
             continue;
           }
 
-          file_put_contents(__DIR__ . '/../../data/devices/metadata.' . $eqLogicId . '.json', json_encode($endpoint['cmetadata']));
+          file_put_contents(__DIR__ . '/../../data/devices/cmetadata.' . $eqLogicId . '.json', json_encode($endpoint['cmetadata']));
         }
       }
     }
