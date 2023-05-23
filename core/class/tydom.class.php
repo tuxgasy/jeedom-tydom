@@ -134,6 +134,14 @@ class tydom extends eqLogic {
     return json_decode(file_get_contents($file), true);
   }
 
+  public static function getDeviceCMetadata($eqLogicId) {
+    $file = __DIR__ . '/../../data/devices/cmetadata.' . $eqLogicId . '.json';
+    if (!file_exists($file)) {
+      return array();
+    }
+    return json_decode(file_get_contents($file), true);
+  }
+
   public static function synchronize() {
     self::sendto_daemon(['action' => 'sync']);
   }
