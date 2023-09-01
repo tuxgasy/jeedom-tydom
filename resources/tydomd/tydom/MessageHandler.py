@@ -71,9 +71,8 @@ class MessageHandler:
                     'Unknown tydom message type received (%s)', bytes_str)
 
         except Exception as e:
-            logger.error(
-                'Technical error when parsing tydom message (%s)',
-                bytes_str)
+            logger.error('Technical error when parsing tydom message (%s)', str(e))
+            logger.error('Tydom message (%s)', bytes_str)
             logger.debug('Incoming payload (%s)', incoming)
 
     # Basic response parsing. Typically GET responses + instanciate covers and
