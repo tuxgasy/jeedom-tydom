@@ -9,8 +9,6 @@ from http.client import HTTPResponse
 from http.server import BaseHTTPRequestHandler
 from io import BytesIO
 
-import urllib3
-
 logger = logging.getLogger(__name__)
 
 class MessageHandler:
@@ -60,7 +58,7 @@ class MessageHandler:
             elif ("HTTP/1.1" in first):
                 response = self.response_from_bytes(
                     bytes_str[len(self.cmd_prefix):])
-                incoming = response.data.decode("utf-8")
+                incoming = response.decode("utf-8")
                 try:
                     await self.parse_response(incoming)
                 except BaseException:
@@ -203,7 +201,7 @@ class MessageHandler:
         sock = BytesIOSocket(data)
         response = HTTPResponse(sock)
         response.begin()
-        return urllib3.HTTPResponse.from_httplib(response)
+        return response.read()
 
 class BytesIOSocket:
     def __init__(self, content):
