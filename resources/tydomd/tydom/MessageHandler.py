@@ -97,15 +97,11 @@ class MessageHandler:
                 msg_type = 'msg_info'
 
             if msg_type is None:
-                logger.error('Unknown message type received', data)
+                logger.warning('Unknown message type received (%s)', data)
             else:
                 logger.debug('Message received detected as (%s)', msg_type)
                 try:
-                    if msg_type == 'msg_info':
-                        parsed = json.loads(data)
-                        self.jeedom_com.send_change_immediate({'msg_type': msg_type, 'data': parsed})
-
-                    elif msg_type == 'msg_config':
+                    if msg_type == 'msg_config':
                         parsed = json.loads(data)
                         self.jeedom_com.send_change_immediate({'msg_type': msg_type, 'data': parsed})
 
@@ -129,9 +125,14 @@ class MessageHandler:
                     elif msg_type == 'msg_html':
                         pass
 
+                    elif msg_type == 'msg_info':
+                        parsed = json.loads(data)
+                        self.jeedom_com.send_change_immediate({'msg_type': msg_type, 'data': parsed})
+
                     logger.debug('Incoming data parsed with success')
                 except Exception as e:
                     logger.error('Error on parsing tydom response (%s)', e)
+                    logger.error('Incoming data (%s)', data)
 
     async def parse_cmeta_data(self, parsed):
         for i in parsed:
@@ -145,24 +146,28 @@ class MessageHandler:
                             for params in elem["parameters"]:
                                 if params["name"] == "dest":
                                     for dest in params["enum_values"]:
-                                        url = "/devices/" + str(i["id"]) + "/endpoints/" + str(endpoint["id"]) + "/cdata?name=" + elem["name"] + "&dest=" + dest + "&reset=false"
+                                        url = "/devices/" + str(i["id"]) + "/endpoints/" + str(
+                                            endpoint["id"]) + "/cdata?name=" + elem["name"] + "&dest=" + dest + "&reset=false"
                                         await self.tydom_client.get_poll_device_data(url)
 
                         elif elem["name"] == "energyInstant":
                             for params in elem["parameters"]:
                                 if params["name"] == "unit":
                                     for unit in params["enum_values"]:
-                                        url = "/devices/" + str(i["id"]) + "/endpoints/" + str(endpoint["id"]) + "/cdata?name=" + elem["name"] + "&unit=" + unit + "&reset=false"
+                                        url = "/devices/" + str(i["id"]) + "/endpoints/" + str(
+                                            endpoint["id"]) + "/cdata?name=" + elem["name"] + "&unit=" + unit + "&reset=false"
                                         await self.tydom_client.get_poll_device_data(url)
 
                         elif elem["name"] == "energyDistrib":
                             for params in elem["parameters"]:
                                 if params["name"] == "src":
                                     for src in params["enum_values"]:
-                                        url = "/devices/" + str(i["id"]) + "/endpoints/" + str(endpoint["id"]) + "/cdata?name=" + elem["name"] + "&period=YEAR&periodOffset=0&src=" + src
+                                        url = "/devices/" + str(i["id"]) + "/endpoints/" + str(
+                                            endpoint["id"]) + "/cdata?name=" + elem["name"] + "&period=YEAR&periodOffset=0&src=" + src
                                         await self.tydom_client.get_poll_device_data(url)
 
-                                        url = "/devices/" + str(i["id"]) + "/endpoints/" + str(endpoint["id"]) + "/cdata?name=" + elem["name"] + "&period=MONTH&periodOffset=0&src=" + src
+                                        url = "/devices/" + str(i["id"]) + "/endpoints/" + str(
+                                            endpoint["id"]) + "/cdata?name=" + elem["name"] + "&period=MONTH&periodOffset=0&src=" + src
                                         await self.tydom_client.get_poll_device_data(url)
 
                         elif elem["name"] == "energyHisto":
@@ -174,6 +179,8 @@ class MessageHandler:
 
                                         url = "/devices/" + str(i["id"]) + "/endpoints/" + str(endpoint["id"]) + "/cdata?name=" + elem["name"] + "&period=YEARS&dest=" + dest
                                         await self.tydom_client.get_poll_device_data(url)
+
+        logger.debug('Metadata configuration updated')
 
     # PUT response DIRTY parsing
     def parse_put_response(self, bytes_str, start=6):

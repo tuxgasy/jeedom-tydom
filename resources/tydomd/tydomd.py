@@ -52,29 +52,38 @@ async def read_socket():
       return
 
 async def listen_tydom():
-  try:
-    await tydom_client.connect()
-    await tydom_client.setup()
-    while 1:
-      try:
-        incoming_bytes_str = await tydom_client.connection.recv()
-        message_handler = MessageHandler(
-          incoming_bytes=incoming_bytes_str,
-          tydom_client=tydom_client,
-          jeedom_com=jeedom_com
-        )
-        await message_handler.incoming_triage()
-      except Exception as e:
-        logging.warning("Unable to handle message: %s", e)
-  except socket.gaierror as e:
-    logging.error("Socket error: %s", e)
-    sys.exit(1)
-  except ConnectionRefusedError as e:
-    logging.error("Connection refused: %s", e)
-    sys.exit(1)
-  except Exception as e:
-    logging.error("Error: %s", e)
-    sys.exit(1)
+  while True:
+    try:
+      await tydom_client.connect()
+      await tydom_client.setup()
+      while True:
+        try:
+          incoming_bytes_str = await tydom_client.connection.recv()
+          message_handler = MessageHandler(
+            incoming_bytes=incoming_bytes_str,
+            tydom_client=tydom_client,
+            jeedom_com=jeedom_com
+          )
+          await message_handler.incoming_triage()
+        except websockets.ConnectionClosed as e:
+          logging.error("Websocket connection closed: %s", e)
+          await tydom_client.disconnect()
+          break
+        except websockets.ConnectionClosedError as e:
+          logging.error("Websocket connection closed with an error: %s", e)
+          await tydom_client.disconnect()
+          break
+        except Exception as e:
+          logging.warning("Unable to handle message: %s", e)
+    except socket.gaierror as e:
+      logging.error("Socket error: %s", e)
+      sys.exit(1)
+    except ConnectionRefusedError as e:
+      logging.error("Connection refused: %s", e)
+      sys.exit(1)
+    except Exception as e:
+      logging.error("Error: %s", e)
+      sys.exit(1)
 
 async def listen_socket():
   jeedom_socket.open()
