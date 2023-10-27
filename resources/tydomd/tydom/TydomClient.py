@@ -5,10 +5,10 @@
 
 import base64
 import http.client
+import json
 import logging
 import os
 import ssl
-import json
 
 import websockets
 from requests.auth import HTTPDigestAuth
@@ -196,7 +196,8 @@ class TydomClient:
             body +
             "\r\n\r\n")
         a_bytes = bytes(str_request, "ascii")
-        logger.debug("Sending message to tydom (%s %s)", "PUT data", body)
+        logger.debug("Sending message to tydom (%s %s)",
+                     "PUT devices data", body)
         await self.connection.send(a_bytes)
         return 0
 
