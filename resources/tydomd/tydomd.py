@@ -9,6 +9,7 @@ import os
 import signal
 import socket
 import sys
+import websockets
 
 from jeedom.jeedom import *
 from tydom.TydomClient import TydomClient
@@ -64,6 +65,9 @@ async def listen_tydom():
           jeedom_com=jeedom_com
         )
         await message_handler.incoming_triage()
+      except websockets.exceptions.ConnectionClosedError as e:
+        logging.error("Connection closed error: %s", e)
+        sys.exit(1)
       except Exception as e:
         logging.warning("Unable to handle message: %s", e)
   except socket.gaierror as e:
