@@ -9,6 +9,7 @@ import os
 import signal
 import socket
 import sys
+import websockets
 
 from jeedom.jeedom import *
 from tydom.TydomClient import TydomClient
