@@ -1,6 +1,7 @@
 {
   "pip3": {
     "pyserial": {},
+    "pyudev": {},
     "requests": {},
     "websockets": {}
   }
