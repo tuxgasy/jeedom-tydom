@@ -62,8 +62,13 @@ class tydom extends eqLogic {
       throw new Exception(__('Veuillez vérifier la configuration', __FILE__));
     }
 
+    $python_path = __DIR__ . '/../../resources/python_venv/bin/python3';
+    if (!file_exists($python_path)) {
+      $python_path = 'python3';
+    }
+
     $path = realpath(dirname(__FILE__) . '/../../resources/tydomd');
-    $cmd = 'python3 '. $path . '/tydomd.py';
+    $cmd = $python_path . ' ' . $path . '/tydomd.py';
     $cmd .= ' --loglevel ' . log::convertLogLevel(log::getLogLevel(__CLASS__));
     $cmd .= ' --socketport ' . config::byKey('socketport', __CLASS__);
     $cmd .= ' --mode "' . trim(str_replace('"', '\"', config::byKey('mode', __CLASS__))) . '"';
