@@ -241,7 +241,7 @@ class tydom extends eqLogic {
 class tydomCmd extends cmd {
   /*     * *********************Methode d'instance************************* */
   public function setDefaultConfiguration($eqLogicDefaultConf) {
-    $defaultConf = !isset($eqLogicDefaultConf['commands']) ? array() : !isset($eqLogicDefaultConf['commands'][$data['name']]) ? array() : $eqLogicDefaultConf['commands'][$data['name']];
+    $defaultConf = (!isset($eqLogicDefaultConf['commands']) or !isset($eqLogicDefaultConf['commands'][$data['name']])) ? array() : $eqLogicDefaultConf['commands'][$data['name']];
 
     $this->setUnite(isset($defaultConf['unite']) ? $defaultConf['unite'] : '');
     $this->setIsVisible(isset($defaultConf['isVisible']) ? $defaultConf['isVisible'] : 1);
